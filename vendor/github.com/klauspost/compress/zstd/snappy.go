@@ -10,8 +10,8 @@ import (
 	"hash/crc32"
 	"io"
 
-	"github.com/golang/snappy"
 	"github.com/klauspost/compress/huff0"
+	snappy "github.com/klauspost/compress/internal/snapref"
 )
 
 const (
@@ -95,10 +95,9 @@ func (r *SnappyConverter) Convert(in io.Reader, w io.Writer) (int64, error) {
 	var written int64
 	var readHeader bool
 	{
-		var header []byte
-		var n int
-		header, r.err = frameHeader{WindowSize: snappyMaxBlockSize}.appendTo(r.buf[:0])
+		header := frameHeader{WindowSize: snappyMaxBlockSize}.appendTo(r.buf[:0])
 
+		var n int
 		n, r.err = w.Write(header)
 		if r.err != nil {
 			return written, r.err
